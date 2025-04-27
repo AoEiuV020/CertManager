@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:secure_utils/secure_utils.dart';
+
+import '../widgets/file_input_field.dart';
 
 class KeyGenPage extends StatefulWidget {
   const KeyGenPage({super.key});
@@ -25,34 +28,19 @@ class _KeyGenPageState extends State<KeyGenPage> {
             Expanded(
               child: Column(
                 children: [
-                  Expanded(
-                    child: TextField(
-                      readOnly: true,
-                      maxLines: null,
-                      decoration: const InputDecoration(
-                        labelText: '私钥（Base64）',
-                        border: OutlineInputBorder(),
-                      ),
-                      controller: TextEditingController(text: _privateKey),
-                    ),
+                  FileInputField(
+                    labelText: '私钥（Base64）',
+                    controller: TextEditingController(text: _privateKey),
                   ),
                   const SizedBox(height: 10),
-                  Expanded(
-                    child: TextField(
-                      readOnly: true,
-                      maxLines: null,
-                      decoration: const InputDecoration(
-                        labelText: '公钥（Base64）',
-                        border: OutlineInputBorder(),
-                      ),
-                      controller: TextEditingController(text: _publicKey),
-                    ),
+                  FileInputField(
+                    labelText: '公钥（Base64）',
+                    controller: TextEditingController(text: _publicKey),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 10),
-            ElevatedButton(onPressed: _saveKey, child: const Text('保存到文件')),
           ],
         ),
       ),
@@ -67,6 +55,4 @@ class _KeyGenPageState extends State<KeyGenPage> {
       _publicKey = pair.getPublicKeyBase64();
     });
   }
-
-  void _saveKey() {}
 }

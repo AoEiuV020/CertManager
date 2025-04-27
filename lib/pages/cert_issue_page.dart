@@ -10,7 +10,7 @@ class CertIssuePage extends StatefulWidget {
 class _CertIssuePageState extends State<CertIssuePage> {
   final List<TextEditingController> _keyControllers = [];
   final TextEditingController _keyInputController = TextEditingController();
-  String _signature = '';
+  final String _signature = '';
 
   @override
   Widget build(BuildContext context) {
