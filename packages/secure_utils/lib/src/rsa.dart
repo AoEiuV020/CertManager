@@ -1,15 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'dart:math';
-import 'dart:typed_data';
+
 import 'package:basic_utils/basic_utils.dart';
-import 'package:pointycastle/api.dart';
-import 'package:pointycastle/asymmetric/api.dart';
-import 'package:pointycastle/asymmetric/rsa.dart';
 import 'package:pointycastle/export.dart';
-import 'package:pointycastle/key_generators/api.dart';
-import 'package:pointycastle/random/fortuna_random.dart';
-import 'package:pointycastle/pointycastle.dart';
 
 /// 私钥是pkcs1, 公钥是pkcs8,
 class RSA {
@@ -19,32 +12,61 @@ class RSA {
             as AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey>;
     return RsaKeyPair(
       CryptoUtils.encodeRSAPublicKeyToDERBytes(pair.publicKey),
-      _convertPkcs8ToPkcs1(CryptoUtils.encodeRSAPrivateKeyToDERBytes(pair.privateKey)),
+      _convertPkcs8ToPkcs1(
+        CryptoUtils.encodeRSAPrivateKeyToDERBytes(pair.privateKey),
+      ),
     );
   }
 
-  static String encryptBase64(Uint8List data, Uint8List publicKey) =>
-      throw UnimplementedError();
-  static Uint8List decryptFromBase64(String encrypted, Uint8List privateKey) =>
-      throw UnimplementedError();
-  static String signBase64(String data, Uint8List privateKey) =>
-      throw UnimplementedError();
-  static Uint8List sign(Uint8List data, Uint8List privateKey) =>
-      throw UnimplementedError();
+  static String encryptBase64(Uint8List data, Uint8List publicKey) {
+    final rsaPublicKey = CryptoUtils.rsaPublicKeyFromDERBytes(publicKey);
+    var cipher =
+        RSAEngine()..init(true, PublicKeyParameter<RSAPublicKey>(rsaPublicKey));
+    var cipherText = cipher.process(data);
+    return base64Encode(cipherText);
+  }
+
+  static Uint8List decryptFromBase64(String encrypted, Uint8List privateKey) {
+    // 里面有个rsaPrivateKeyFromDERBytesPkcs1但不对，
+    final rsaPrivateKey = CryptoUtils.rsaPrivateKeyFromDERBytes(privateKey);
+    final encryptedBytes = base64Decode(encrypted);
+    var cipher =
+        RSAEngine()
+          ..init(false, PrivateKeyParameter<RSAPrivateKey>(rsaPrivateKey));
+    var decrypted = cipher.process(encryptedBytes);
+    return decrypted;
+  }
+
+  static String signBase64(String data, Uint8List privateKey) {
+    final signature = sign(utf8.encode(data), privateKey);
+    return base64Encode(signature);
+  }
+
+  static Uint8List sign(Uint8List data, Uint8List privateKey) {
+    final rsaPrivateKey = CryptoUtils.rsaPrivateKeyFromDERBytesPkcs1(
+      privateKey,
+    );
+    return CryptoUtils.rsaSign(rsaPrivateKey, data);
+  }
+
   static bool verifyFromBase64(
     String data,
     Uint8List publicKey,
     String signature,
-  ) => throw UnimplementedError();
-  static bool verify(
-    Uint8List data,
-    Uint8List publicKey,
-    Uint8List signature,
-  ) => throw UnimplementedError();
-static Uint8List _convertPkcs8ToPkcs1(Uint8List pkcs8Bytes) {
-  return Uint8List.sublistView(pkcs8Bytes, 26, pkcs8Bytes.length);
-}
- static  Uint8List _convertPkcs1ToPkcs8(Uint8List pkcs1Bytes) {
+  ) {
+    return verify(utf8.encode(data), publicKey, base64Decode(signature));
+  }
+
+  static bool verify(Uint8List data, Uint8List publicKey, Uint8List signature) {
+    final rsaPublicKey = CryptoUtils.rsaPublicKeyFromDERBytes(publicKey);
+    return CryptoUtils.rsaVerify(rsaPublicKey, data, signature);
+  }
+
+  static Uint8List _convertPkcs8ToPkcs1(Uint8List pkcs8Bytes) {
+    return Uint8List.sublistView(pkcs8Bytes, 26, pkcs8Bytes.length);
+  }
+
+  static Uint8List _convertPkcs1ToPkcs8(Uint8List pkcs1Bytes) {
     int pkcs1Length = pkcs1Bytes.length;
     int totalLength = pkcs1Length + 22;
 
