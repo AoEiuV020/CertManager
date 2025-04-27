@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 extension ContextExtension on BuildContext {
-  Future showDialog({
+  Future dialog({
     String? title,
     required String content,
     List<Widget>? actions,
@@ -9,14 +9,14 @@ extension ContextExtension on BuildContext {
     if (!mounted) {
       return;
     }
-    return await showDialogWithWidget(
+    return await dialogWithWidget(
       title: title,
       content: Text(content),
       actions: actions,
     );
   }
 
-  Future showDialogWithWidget({
+  Future dialogWithWidget({
     String? title,
     required Widget content,
     List<Widget>? actions,
@@ -24,26 +24,24 @@ extension ContextExtension on BuildContext {
     if (!mounted) {
       return;
     }
-    return await Navigator.push(
-      this,
-      MaterialPageRoute(
-        builder:
-            (context) => AlertDialog(
-              title: title != null ? Text(title) : null,
-              content: content,
-              actions:
-                  actions ??
-                  [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(
-                        '确定',
-                        style: TextStyle(color: Theme.of(context).primaryColor),
-                      ),
+    return await showDialog(
+      context: this,
+      builder:
+          (context) => AlertDialog(
+            title: title != null ? Text(title) : null,
+            content: content,
+            actions:
+                actions ??
+                [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      '确定',
+                      style: TextStyle(color: Theme.of(context).primaryColor),
                     ),
-                  ],
-            ),
-      ),
+                  ),
+                ],
+          ),
     );
   }
 

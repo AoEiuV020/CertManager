@@ -1,8 +1,6 @@
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:file_picker/file_picker.dart';
 
 import '../utils/ext.dart';
@@ -33,7 +31,7 @@ class FileInputField extends StatelessWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        context.showDialog(content: '复制失败: ${e.toString()}');
+        context.dialog(content: '复制失败: ${e.toString()}');
       }
     }
   }
@@ -49,11 +47,11 @@ class FileInputField extends StatelessWidget {
       if (result == null || controller.text.isEmpty) return;
 
       if (context.mounted) {
-        context.showDialog(content: '文件已保存至：$result');
+        context.dialog(content: '文件已保存至：$result');
       }
     } catch (e) {
       if (context.mounted) {
-        context.showDialog(content: '保存失败：${e.toString()}');
+        context.dialog(content: '保存失败：${e.toString()}');
       }
     }
   }
