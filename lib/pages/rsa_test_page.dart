@@ -20,7 +20,6 @@ class _RsaTestPageState extends State<RsaTestPage> {
   final TextEditingController _plainTextController = TextEditingController();
   final TextEditingController _cipherTextController = TextEditingController();
   final TextEditingController _signController = TextEditingController();
-  final TextEditingController _verifyResultController = TextEditingController();
   bool? _isValid;
 
   @override
@@ -32,9 +31,22 @@ class _RsaTestPageState extends State<RsaTestPage> {
         child: ListView(
           children: [
             FileInputField(labelText: '私钥', controller: _privateKeyController),
-            ElevatedButton(
-              onPressed: _extractPublicKey,
-              child: const Text('从私钥读取公钥'),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _generateKeyPair,
+                    child: const Text('生成密钥对'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _extractPublicKey,
+                    child: const Text('从私钥读取公钥'),
+                  ),
+                ),
+              ],
             ),
             FileInputField(labelText: '公钥', controller: _publicKeyController),
             const Divider(),
@@ -149,6 +161,16 @@ class _RsaTestPageState extends State<RsaTestPage> {
     } catch (e) {
       context.dialog(content: '验证失败: $e');
       setState(() => _isValid = false);
+    }
+  }
+
+  void _generateKeyPair() {
+    try {
+      final keyPair = RSA.genKeyPair();
+      _privateKeyController.text = base64Encode(keyPair.privateKey);
+      _publicKeyController.text = base64Encode(keyPair.publicKey);
+    } catch (e) {
+      context.dialog(content: '生成密钥对失败: $e');
     }
   }
 }
