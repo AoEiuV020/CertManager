@@ -18,9 +18,51 @@ class _RsaTestPageState extends State<RsaTestPage> {
   final TextEditingController _privateKeyController = TextEditingController();
   final TextEditingController _publicKeyController = TextEditingController();
   final TextEditingController _plainTextController = TextEditingController();
+  final TextEditingController _plainBase64Controller = TextEditingController();
   final TextEditingController _cipherTextController = TextEditingController();
   final TextEditingController _signController = TextEditingController();
   bool? _isValid;
+  bool _isSyncing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _plainTextController.addListener(_syncPlainToBase64);
+    _plainBase64Controller.addListener(_syncBase64ToPlain);
+  }
+
+  @override
+  void dispose() {
+    _plainTextController.removeListener(_syncPlainToBase64);
+    _plainBase64Controller.removeListener(_syncBase64ToPlain);
+    super.dispose();
+  }
+
+  void _syncPlainToBase64() {
+    if (_isSyncing) return;
+    _isSyncing = true;
+    try {
+      _plainBase64Controller.text = base64Encode(
+        utf8.encode(_plainTextController.text),
+      );
+    } catch (e) {
+      _plainBase64Controller.text = '';
+    }
+    _isSyncing = false;
+  }
+
+  void _syncBase64ToPlain() {
+    if (_isSyncing) return;
+    _isSyncing = true;
+    try {
+      _plainTextController.text = utf8.decode(
+        base64Decode(_plainBase64Controller.text),
+      );
+    } catch (e) {
+      _plainTextController.text = '';
+    }
+    _isSyncing = false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +72,10 @@ class _RsaTestPageState extends State<RsaTestPage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            FileInputField(labelText: '私钥', controller: _privateKeyController),
+            FileInputField(
+              labelText: '私钥(Base64,Pkcs1)',
+              controller: _privateKeyController,
+            ),
             Row(
               children: [
                 Expanded(
@@ -48,9 +93,17 @@ class _RsaTestPageState extends State<RsaTestPage> {
                 ),
               ],
             ),
-            FileInputField(labelText: '公钥', controller: _publicKeyController),
+            FileInputField(
+              labelText: '公钥(Base64,Pkcs8)',
+              controller: _publicKeyController,
+            ),
             const Divider(),
             FileInputField(labelText: '明文', controller: _plainTextController),
+            const SizedBox(height: 8),
+            FileInputField(
+              labelText: '明文(Base64)',
+              controller: _plainBase64Controller,
+            ),
             Row(
               children: [
                 Expanded(
@@ -68,9 +121,15 @@ class _RsaTestPageState extends State<RsaTestPage> {
                 ),
               ],
             ),
-            FileInputField(labelText: '密文', controller: _cipherTextController),
+            FileInputField(
+              labelText: '密文(Base64)',
+              controller: _cipherTextController,
+            ),
             const Divider(),
-            FileInputField(labelText: '签名数据', controller: _signController),
+            FileInputField(
+              labelText: '签名(Base64)',
+              controller: _signController,
+            ),
             Row(
               children: [
                 Expanded(
@@ -116,7 +175,7 @@ class _RsaTestPageState extends State<RsaTestPage> {
   void _encrypt() {
     try {
       final cipherText = RSA.encrypt(
-        base64Decode(_plainTextController.text),
+        base64Decode(_plainBase64Controller.text),
         base64Decode(_publicKeyController.text),
       );
       _cipherTextController.text = base64Encode(cipherText);
@@ -131,7 +190,7 @@ class _RsaTestPageState extends State<RsaTestPage> {
         base64Decode(_cipherTextController.text),
         base64Decode(_privateKeyController.text),
       );
-      _plainTextController.text = base64Encode(plainText);
+      _plainBase64Controller.text = base64Encode(plainText);
     } catch (e) {
       context.dialog(content: '解密失败: $e');
     }
@@ -140,7 +199,7 @@ class _RsaTestPageState extends State<RsaTestPage> {
   void _sign() {
     try {
       final signature = RSA.sign(
-        base64Decode(_plainTextController.text),
+        base64Decode(_plainBase64Controller.text),
         base64Decode(_privateKeyController.text),
       );
       _signController.text = base64Encode(signature);
@@ -153,7 +212,7 @@ class _RsaTestPageState extends State<RsaTestPage> {
   void _verify() {
     try {
       final isValid = RSA.verify(
-        base64Decode(_plainTextController.text),
+        base64Decode(_plainBase64Controller.text),
         base64Decode(_publicKeyController.text),
         base64Decode(_signController.text),
       );
