@@ -71,7 +71,8 @@ void main() {
     test('precomputed encryption should match', () {
       final encrypted = RSA.encrypt(contentRaw, keyPair.publicKey);
       print(base64Encode(encrypted));
-      expect(encrypted, equals(encryptedRaw));
+      // RSA/ECB/PKCS1Padding 每次加密都不同，所以这里不匹配，
+      expect(encrypted, isNot(equals(encryptedRaw)));
     });
 
     test('precomputed decryption should match', () {
@@ -136,7 +137,7 @@ const content = "hello";
 
 final contentRaw = base64Decode("kolOt/LYqkhf/RZu6aJcIA==");
 final encryptedRaw = base64Decode(
-  "MtV72Cjqknt/u+dcbD9NvG5RX0al2c3h7H8+ca0JNqumcytfIi6CSsCjehlqG6cheIdrgc2WA1UebhnlRDp/DrihtuOHBiafx1Lc2K5zAtK5/82HKG1G2rJcr/O2upd1WVcXDm8cTcmVIuYSOikC1lq7ggY04qnDnTlY+eMpAEk=",
+  "KzWu1hlpDMT6/hXk9XHF7UPwbc/yjXXwXkfqb3HuhZL3QRg8oWu+b5eQ2GoHQj6zMTbxpjP63UoKlapm1bmHgtSUtxzv+nQUqGtGe3ifhH+9svkZ8PxhwMxqQCpD3rN9X45z4Yv58NUcnUYHTmd/sdToB9v+Z/CnpT9uhNazi9Q=",
 );
 final signRaw = base64Decode(
   "VnEka0wYeYmaG45qW7+RTPH+prTO9ryxrtqyAwpoZOymeQGJTPfkmm+Ti16UJPZetYR1LF+ETQ++XAkuTQIqhu4sgXyuhw4/TIYyMDzaEuEDOciwvJLiyC73E0Q4jXQx6kT8o+65Ki9h4LPxjjr8tOc+/r3U1uhute8/QWWYiuA=",

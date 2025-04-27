@@ -95,13 +95,13 @@ class RSA {
   }
 
   static Uint8List _processRSA(Uint8List data, bool isEncrypt, dynamic key) {
-    final cipher =
-        RSAEngine()..init(
-          isEncrypt,
-          isEncrypt
-              ? PublicKeyParameter<RSAPublicKey>(key)
-              : PrivateKeyParameter<RSAPrivateKey>(key),
-        );
+    // 效果同java的 RSA/ECB/PKCS1Padding
+    final cipher = PKCS1Encoding(RSAEngine())..init(
+      isEncrypt,
+      isEncrypt
+          ? PublicKeyParameter<RSAPublicKey>(key)
+          : PrivateKeyParameter<RSAPrivateKey>(key),
+    );
     return cipher.process(data);
   }
 
