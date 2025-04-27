@@ -39,6 +39,22 @@ class FileInputField extends StatelessWidget {
     }
   }
 
+  Future<void> _pasteFromClipboard(BuildContext context) async {
+    try {
+      final data = await Clipboard.getData('text/plain');
+      if (data?.text?.isNotEmpty ?? false) {
+        controller.text = data!.text!;
+      }
+      if (context.mounted) {
+        context.showSnackBar(content: '已粘贴');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        context.dialog(content: '粘贴失败: ${e.toString()}');
+      }
+    }
+  }
+
   Future<void> _saveFile(BuildContext context) async {
     try {
       final result = await FilePicker.platform.saveFile(
@@ -76,13 +92,21 @@ class FileInputField extends StatelessWidget {
         IconButton(
           icon: const Icon(Icons.upload_file),
           onPressed: () => _pickFile(context),
+          tooltip: '读取文件',
         ),
         IconButton(
           icon: const Icon(Icons.copy),
+          tooltip: '复制',
           onPressed: () => _copyToClipboard(context),
         ),
         IconButton(
+          icon: const Icon(Icons.paste),
+          tooltip: '粘贴',
+          onPressed: () => _pasteFromClipboard(context),
+        ),
+        IconButton(
           icon: const Icon(Icons.save_alt),
+          tooltip: '保存文件',
           onPressed: () => _saveFile(context),
         ),
       ],
