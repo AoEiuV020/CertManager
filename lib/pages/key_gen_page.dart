@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:secure_utils/secure_utils.dart';
-
+import '../utils/cert.dart';
 import '../widgets/file_input_field.dart';
 
 class KeyGenPage extends StatefulWidget {
@@ -54,11 +53,10 @@ class _KeyGenPageState extends State<KeyGenPage> {
   }
 
   void _generateKey() {
-    // 调用RSA生成方法
-    final pair = RSA.genKeyPair();
+    final pair = CertUtils.genKeyPair();
     setState(() {
-      _privateKey = pair.getPrivateKeyBase64();
-      _publicKey = pair.getPublicKeyBase64();
+      _privateKey = pair.privateKey;
+      _publicKey = pair.publicKey;
     });
   }
 }

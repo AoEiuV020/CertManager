@@ -6,6 +6,7 @@ import 'package:pointycastle/export.dart';
 
 /// 私钥是pkcs1, 公钥是pkcs8,
 class RSA {
+  RSA._();
   static RsaKeyPair genKeyPair() {
     final pair =
         CryptoUtils.generateRSAKeyPair()

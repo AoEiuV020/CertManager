@@ -1,10 +1,6 @@
-import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'package:secure_utils/secure_utils.dart';
-
+import '../utils/cert.dart';
 import '../widgets/file_input_field.dart';
 
 class CertIssuePage extends StatefulWidget {
@@ -102,13 +98,11 @@ class _CertIssuePageState extends State<CertIssuePage> {
         (e) => MapEntry<String, String>(e.key, e.controller.text),
       ),
     );
-    final value = Parameter.concatValues(data);
-    final signed = RSA.sign(
-      Uint8List.fromList(value.codeUnits),
-      base64Decode(_keyController.text),
-    );
     setState(() {
-      _signController.text = base64Encode(signed);
+      _signController.text = CertUtils.generateSignature(
+        data,
+        _keyController.text,
+      );
     });
   }
 }
