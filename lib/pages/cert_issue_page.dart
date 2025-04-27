@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../utils/cert.dart';
+import '../widgets/date_time_picker.dart';
 import '../widgets/file_input_field.dart';
 
 class CertIssuePage extends StatefulWidget {
@@ -37,6 +38,8 @@ class _CertIssuePageState extends State<CertIssuePage> {
   ];
   final TextEditingController _keyController = TextEditingController();
   final TextEditingController _certController = TextEditingController();
+  DateTime _startDate = DateTime.now();
+  DateTime _endDate = DateTime.now().add(Duration(days: 90));
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +57,22 @@ class _CertIssuePageState extends State<CertIssuePage> {
               labelText: '生成的证书',
               controller: _certController,
               readOnly: true,
+            ),
+            SizedBox(height: 8),
+            DateTimePickerWidget(
+              title: '有效期开始时间',
+              date: _startDate,
+              firstDate: DateTime.now(),
+              lastDate: _startDate.add(Duration(days: 365 * 10)),
+              onChanged: (date) => setState(() => _startDate = date),
+            ),
+            SizedBox(height: 8),
+            DateTimePickerWidget(
+              title: '有效期结束时间',
+              date: _endDate,
+              firstDate: _startDate,
+              lastDate: _startDate.add(Duration(days: 365 * 100)),
+              onChanged: (date) => setState(() => _endDate = date),
             ),
             SizedBox(height: 8),
             Divider(),
@@ -88,10 +107,11 @@ class _CertIssuePageState extends State<CertIssuePage> {
       ),
     );
     setState(() {
-      _certController.text = CertUtils.generateCertificate(
-        data,
-        _keyController.text,
-      );
+      _certController.text = CertUtils.generateCertificate({
+        ...data,
+        'validFrom': _startDate.millisecondsSinceEpoch,
+        'validTo': _endDate.millisecondsSinceEpoch,
+      }, _keyController.text);
     });
   }
 }

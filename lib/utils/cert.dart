@@ -18,7 +18,7 @@ class CertUtils {
   }
 
   static String generateCertificate(
-    Map<String, String> data,
+    Map<String, dynamic> data,
     String privateKey,
   ) {
     final value = jsonEncode(data);
@@ -42,9 +42,27 @@ class CertUtils {
 
       final isValid = RSA.verify(data, base64Decode(publicKey), signature);
 
-      return (data: String.fromCharCodes(data), isValid: isValid);
+      final str = String.fromCharCodes(data);
+      if (isValid) {
+        // 验证时间有效性
+        final map = jsonDecode(str);
+        if (map['validFrom'] != null && map['validTo'] != null) {
+          final now = DateTime.now();
+          final validFrom = DateTime.fromMillisecondsSinceEpoch(
+            map['validFrom'],
+          );
+          final validTo = DateTime.fromMillisecondsSinceEpoch(map['validTo']);
+          if (now.isBefore(validFrom) || now.isAfter(validTo)) {
+            return (data: '', isValid: false);
+          }
+        } else {
+          return (data: '', isValid: false);
+        }
+      }
+
+      return (data: str, isValid: isValid);
     } catch (e) {
-      return (data: '解析错误: $e', isValid: false);
+      return (data: '', isValid: false);
     }
   }
 }
