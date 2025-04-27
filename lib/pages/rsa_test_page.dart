@@ -1,4 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+
+import 'package:secure_utils/secure_utils.dart';
+
+import '../utils/ext.dart';
+import '../widgets/file_input_field.dart';
 
 class RsaTestPage extends StatefulWidget {
   const RsaTestPage({super.key});
@@ -8,10 +15,13 @@ class RsaTestPage extends StatefulWidget {
 }
 
 class _RsaTestPageState extends State<RsaTestPage> {
-  final TextEditingController _inputController = TextEditingController();
-  final TextEditingController _outputController = TextEditingController();
+  final TextEditingController _privateKeyController = TextEditingController();
+  final TextEditingController _publicKeyController = TextEditingController();
+  final TextEditingController _plainTextController = TextEditingController();
+  final TextEditingController _cipherTextController = TextEditingController();
   final TextEditingController _signController = TextEditingController();
-  final TextEditingController _verifyController = TextEditingController();
+  final TextEditingController _verifyResultController = TextEditingController();
+  bool? _isValid;
 
   @override
   Widget build(BuildContext context) {
@@ -21,44 +31,124 @@ class _RsaTestPageState extends State<RsaTestPage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            TextField(
-              controller: _inputController,
-              decoration: const InputDecoration(labelText: '明文/密文'),
-              maxLines: 3,
+            FileInputField(labelText: '私钥', controller: _privateKeyController),
+            ElevatedButton(
+              onPressed: _extractPublicKey,
+              child: const Text('从私钥读取公钥'),
             ),
+            FileInputField(labelText: '公钥', controller: _publicKeyController),
+            const Divider(),
+            FileInputField(labelText: '明文', controller: _plainTextController),
             Row(
               children: [
-                ElevatedButton(onPressed: _encrypt, child: const Text('加密')),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _encrypt,
+                    child: const Text('加密'),
+                  ),
+                ),
                 const SizedBox(width: 10),
-                ElevatedButton(onPressed: _decrypt, child: const Text('解密')),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _decrypt,
+                    child: const Text('解密'),
+                  ),
+                ),
               ],
             ),
-            TextField(
-              controller: _outputController,
-              decoration: const InputDecoration(labelText: '结果'),
-              maxLines: 3,
-              readOnly: true,
-            ),
+            FileInputField(labelText: '密文', controller: _cipherTextController),
             const Divider(),
-            TextField(
-              controller: _signController,
-              decoration: const InputDecoration(labelText: '签名数据'),
-              maxLines: 3,
+            FileInputField(labelText: '签名数据', controller: _signController),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _sign,
+                    child: const Text('生成签名'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _verify,
+                    child: const Text('验证签名'),
+                  ),
+                ),
+              ],
             ),
-            ElevatedButton(onPressed: _sign, child: const Text('生成签名')),
-            TextField(
-              controller: _verifyController,
-              decoration: const InputDecoration(labelText: '验证结果'),
-              maxLines: 3,
-              readOnly: true,
-            ),
+            if (_isValid != null)
+              Text(
+                _isValid! ? '验证通过 ✅' : '验证失败 ❌',
+                style: TextStyle(
+                  color: _isValid! ? Colors.green : Colors.red,
+                  fontSize: 18,
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  void _encrypt() {}
-  void _decrypt() {}
-  void _sign() {}
+  void _extractPublicKey() {
+    try {
+      final publicKey = RSA.extractPublicKey(
+        base64Decode(_privateKeyController.text),
+      );
+      _publicKeyController.text = base64Encode(publicKey);
+    } catch (e) {
+      context.dialog(content: '提取公钥失败: $e');
+    }
+  }
+
+  void _encrypt() {
+    try {
+      final cipherText = RSA.encrypt(
+        base64Decode(_plainTextController.text),
+        base64Decode(_publicKeyController.text),
+      );
+      _cipherTextController.text = base64Encode(cipherText);
+    } catch (e) {
+      context.dialog(content: '加密失败: $e');
+    }
+  }
+
+  void _decrypt() {
+    try {
+      final plainText = RSA.decrypt(
+        base64Decode(_cipherTextController.text),
+        base64Decode(_privateKeyController.text),
+      );
+      _plainTextController.text = base64Encode(plainText);
+    } catch (e) {
+      context.dialog(content: '解密失败: $e');
+    }
+  }
+
+  void _sign() {
+    try {
+      final signature = RSA.sign(
+        base64Decode(_plainTextController.text),
+        base64Decode(_privateKeyController.text),
+      );
+      _signController.text = base64Encode(signature);
+    } catch (e) {
+      context.dialog(content: '签名失败: $e');
+    }
+    setState(() => _isValid = null);
+  }
+
+  void _verify() {
+    try {
+      final isValid = RSA.verify(
+        base64Decode(_plainTextController.text),
+        base64Decode(_publicKeyController.text),
+        base64Decode(_signController.text),
+      );
+      setState(() => _isValid = isValid);
+    } catch (e) {
+      context.dialog(content: '验证失败: $e');
+      setState(() => _isValid = false);
+    }
+  }
 }

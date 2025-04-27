@@ -14,7 +14,7 @@ class _CertVerifyPageState extends State<CertVerifyPage> {
   final TextEditingController _keyController = TextEditingController();
   final TextEditingController _publicKeyController = TextEditingController();
   final TextEditingController _certController = TextEditingController();
-  bool _isValid = false;
+  bool? _isValid;
   final TextEditingController _certDataController = TextEditingController();
 
   @override
@@ -45,13 +45,14 @@ class _CertVerifyPageState extends State<CertVerifyPage> {
               readOnly: true,
             ),
             const SizedBox(height: 10),
-            Text(
-              _isValid ? '验证通过 ✅' : '验证失败 ❌',
-              style: TextStyle(
-                color: _isValid ? Colors.green : Colors.red,
-                fontSize: 18,
+            if (_isValid != null)
+              Text(
+                _isValid! ? '验证通过 ✅' : '验证失败 ❌',
+                style: TextStyle(
+                  color: _isValid! ? Colors.green : Colors.red,
+                  fontSize: 18,
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -75,7 +76,7 @@ class _CertVerifyPageState extends State<CertVerifyPage> {
     if (certContent.isEmpty) {
       setState(() {
         _certDataController.text = '';
-        _isValid = false;
+        _isValid = null;
       });
       return;
     }
