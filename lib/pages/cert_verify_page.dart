@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import '../utils/cert.dart';
@@ -46,12 +48,22 @@ class _CertVerifyPageState extends State<CertVerifyPage> {
             ),
             const SizedBox(height: 10),
             if (_isValid != null)
-              Text(
-                _isValid! ? '验证通过 ✅' : '验证失败 ❌',
-                style: TextStyle(
-                  color: _isValid! ? Colors.green : Colors.red,
-                  fontSize: 18,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _isValid! ? '验证通过 ✅' : '验证失败 ❌',
+                    style: TextStyle(
+                      color: _isValid! ? Colors.green : Colors.red,
+                      fontSize: 18,
+                    ),
+                  ),
+                  if (_isValid!)
+                    Text(
+                      '有效期至: ${_formatValidTo(_certDataController.text)}',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                ],
               ),
           ],
         ),
@@ -69,6 +81,17 @@ class _CertVerifyPageState extends State<CertVerifyPage> {
     setState(() {
       _publicKeyController.text = publicKey;
     });
+  }
+
+  String _formatValidTo(String certData) {
+    try {
+      final validTo = jsonDecode(certData)['validTo'];
+      return validTo != null
+          ? DateTime.fromMillisecondsSinceEpoch(validTo).toString()
+          : '未知';
+    } catch (e) {
+      return '未知';
+    }
   }
 
   Future<void> _verifyCert() async {
