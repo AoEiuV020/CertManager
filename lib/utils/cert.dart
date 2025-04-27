@@ -21,7 +21,7 @@ class CertUtils {
     Map<String, String> data,
     String privateKey,
   ) {
-    final value = Parameter.concatValues(data);
+    final value = jsonEncode(data);
     final signed = RSA.sign(
       Uint8List.fromList(value.codeUnits),
       base64Decode(privateKey),
