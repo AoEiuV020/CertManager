@@ -26,13 +26,18 @@ class _CertVerifyPageState extends State<CertVerifyPage> {
         child: ListView(
           children: [
             FileInputField(controller: _keyController, labelText: '私钥'),
+            const SizedBox(height: 8),
             ElevatedButton(
               onPressed: _parsePublicKey,
               child: const Text('从私钥读取公钥'),
             ),
+            const SizedBox(height: 8),
             FileInputField(controller: _publicKeyController, labelText: '公钥'),
+            const SizedBox(height: 8),
             FileInputField(controller: _certController, labelText: '证书内容'),
+            const SizedBox(height: 8),
             ElevatedButton(onPressed: _verifyCert, child: const Text('验证证书')),
+            const Divider(),
             const SizedBox(height: 20),
             FileInputField(
               controller: _certDataController,
@@ -69,6 +74,7 @@ class _CertVerifyPageState extends State<CertVerifyPage> {
     final certContent = _certController.text;
     if (certContent.isEmpty) {
       setState(() {
+        _certDataController.text = '';
         _isValid = false;
       });
       return;

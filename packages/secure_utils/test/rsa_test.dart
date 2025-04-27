@@ -87,6 +87,16 @@ void main() {
     test('precomputed signature should verify', () {
       expect(RSA.verify(contentRaw, keyPair.publicKey, signRaw), isTrue);
     });
+
+    test('extractPublicKey should work', () {
+      final extractedPublicKey = RSA.extractPublicKey(keyPair.privateKey);
+      expect(extractedPublicKey, equals(keyPair.publicKey));
+    });
+
+    test('pkcs1 extractPublicKey should work', () {
+      final extractedPublicKey = RSA.extractPublicKey(keyPairPkcs1.privateKey);
+      expect(extractedPublicKey, equals(keyPairPkcs1.publicKey));
+    });
   });
 }
 

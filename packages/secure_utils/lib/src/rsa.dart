@@ -19,6 +19,15 @@ class RSA {
     );
   }
 
+  static Uint8List extractPublicKey(Uint8List privateKey) {
+    final rsaPrivateKey = _getRsaPrivateKey(privateKey);
+    final rsaPublicKey = RSAPublicKey(
+      rsaPrivateKey.modulus!,
+      BigInt.parse('65537'),
+    );
+    return CryptoUtils.encodeRSAPublicKeyToDERBytes(rsaPublicKey);
+  }
+
   static String encryptBase64(Uint8List data, Uint8List publicKey) {
     final encryptedData = encrypt(data, publicKey);
     return base64Encode(encryptedData);

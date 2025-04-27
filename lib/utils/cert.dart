@@ -14,7 +14,7 @@ class CertUtils {
   }
 
   static String extractPublicKey(String privateKey) {
-    throw UnimplementedError();
+    return base64Encode(RSA.extractPublicKey(base64Decode(privateKey)));
   }
 
   static String generateCertificate(
