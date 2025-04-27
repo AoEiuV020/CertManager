@@ -8,11 +8,13 @@ import '../utils/ext.dart';
 class FileInputField extends StatelessWidget {
   final String labelText;
   final TextEditingController controller;
+  final bool readOnly;
 
   const FileInputField({
     super.key,
     required this.labelText,
     required this.controller,
+    this.readOnly = false,
   });
 
   Future<void> _pickFile(BuildContext context) async {
@@ -82,7 +84,7 @@ class FileInputField extends StatelessWidget {
         Expanded(
           child: TextField(
             controller: controller,
-            readOnly: true,
+            readOnly: readOnly,
             decoration: InputDecoration(
               labelText: labelText,
               border: const OutlineInputBorder(),
