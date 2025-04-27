@@ -7,9 +7,18 @@ import 'package:pointycastle/export.dart';
 /// 私钥是pkcs1, 公钥是pkcs8,
 class RSA {
   RSA._();
-  static RsaKeyPair genKeyPair() {
+
+  /// The default value for the [keySize] is 2048 bits.
+  ///
+  /// The following keySize is supported:
+  /// * 1024
+  /// * 2048
+  /// * 3072
+  /// * 4096
+  /// * 8192
+  static RsaKeyPair genKeyPair({int keySize = 2048}) {
     final pair =
-        CryptoUtils.generateRSAKeyPair()
+        CryptoUtils.generateRSAKeyPair(keySize: keySize)
             as AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey>;
     return RsaKeyPair(
       CryptoUtils.encodeRSAPublicKeyToDERBytes(pair.publicKey),
