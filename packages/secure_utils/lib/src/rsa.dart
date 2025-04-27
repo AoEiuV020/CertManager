@@ -19,22 +19,23 @@ class RSA {
   }
 
   static String encryptBase64(Uint8List data, Uint8List publicKey) {
-    final rsaPublicKey = CryptoUtils.rsaPublicKeyFromDERBytes(publicKey);
-    var cipher =
-        RSAEngine()..init(true, PublicKeyParameter<RSAPublicKey>(rsaPublicKey));
-    var cipherText = cipher.process(data);
-    return base64Encode(cipherText);
+    final encryptedData = encrypt(data, publicKey);
+    return base64Encode(encryptedData);
+  }
+
+  static Uint8List encrypt(Uint8List data, Uint8List publicKey) {
+    final rsaPublicKey = _getRsaPublicKey(publicKey);
+    return _processRSA(data, true, rsaPublicKey);
   }
 
   static Uint8List decryptFromBase64(String encrypted, Uint8List privateKey) {
-    // 里面有个rsaPrivateKeyFromDERBytesPkcs1但不对，
-    final rsaPrivateKey = CryptoUtils.rsaPrivateKeyFromDERBytes(privateKey);
     final encryptedBytes = base64Decode(encrypted);
-    var cipher =
-        RSAEngine()
-          ..init(false, PrivateKeyParameter<RSAPrivateKey>(rsaPrivateKey));
-    var decrypted = cipher.process(encryptedBytes);
-    return decrypted;
+    return decrypt(encryptedBytes, privateKey);
+  }
+
+  static Uint8List decrypt(Uint8List encryptedData, Uint8List privateKey) {
+    final rsaPrivateKey = _getRsaPrivateKey(privateKey);
+    return _processRSA(encryptedData, false, rsaPrivateKey);
   }
 
   static String signBase64(String data, Uint8List privateKey) {
@@ -43,9 +44,7 @@ class RSA {
   }
 
   static Uint8List sign(Uint8List data, Uint8List privateKey) {
-    final rsaPrivateKey = CryptoUtils.rsaPrivateKeyFromDERBytesPkcs1(
-      privateKey,
-    );
+    final rsaPrivateKey = _getRsaPrivateKey(privateKey);
     return CryptoUtils.rsaSign(rsaPrivateKey, data);
   }
 
@@ -58,14 +57,40 @@ class RSA {
   }
 
   static bool verify(Uint8List data, Uint8List publicKey, Uint8List signature) {
-    final rsaPublicKey = CryptoUtils.rsaPublicKeyFromDERBytes(publicKey);
+    final rsaPublicKey = _getRsaPublicKey(publicKey);
     return CryptoUtils.rsaVerify(rsaPublicKey, data, signature);
+  }
+
+  // 私有辅助方法
+  static RSAPublicKey _getRsaPublicKey(Uint8List publicKey) {
+    return CryptoUtils.rsaPublicKeyFromDERBytes(publicKey);
+  }
+
+  static RSAPrivateKey _getRsaPrivateKey(Uint8List privateKey) {
+    try {
+      return CryptoUtils.rsaPrivateKeyFromDERBytesPkcs1(privateKey);
+    } catch (e) {
+      // 如果默认解析失败，尝试使用PKCS8格式解析
+      return CryptoUtils.rsaPrivateKeyFromDERBytes(privateKey);
+    }
+  }
+
+  static Uint8List _processRSA(Uint8List data, bool isEncrypt, dynamic key) {
+    final cipher =
+        RSAEngine()..init(
+          isEncrypt,
+          isEncrypt
+              ? PublicKeyParameter<RSAPublicKey>(key)
+              : PrivateKeyParameter<RSAPrivateKey>(key),
+        );
+    return cipher.process(data);
   }
 
   static Uint8List _convertPkcs8ToPkcs1(Uint8List pkcs8Bytes) {
     return Uint8List.sublistView(pkcs8Bytes, 26, pkcs8Bytes.length);
   }
 
+  // ignore: unused_element
   static Uint8List _convertPkcs1ToPkcs8(Uint8List pkcs1Bytes) {
     int pkcs1Length = pkcs1Bytes.length;
     int totalLength = pkcs1Length + 22;
