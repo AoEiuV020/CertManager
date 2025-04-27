@@ -36,32 +36,23 @@ class _CertIssuePageState extends State<CertIssuePage> {
     ),
   ];
   final TextEditingController _keyController = TextEditingController();
-  final TextEditingController _signController = TextEditingController();
+  final TextEditingController _certController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('颁发证书'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      appBar: AppBar(title: Text('颁发证书')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             FileInputField(labelText: '私钥文件', controller: _keyController),
             SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: _generateSignature,
-              child: Text('生成证书签名'),
-            ),
+            ElevatedButton(onPressed: _generateSignature, child: Text('生成证书')),
             SizedBox(height: 8),
             FileInputField(
               labelText: '生成的证书',
-              controller: _signController,
+              controller: _certController,
               readOnly: true,
             ),
             SizedBox(height: 8),
@@ -99,7 +90,7 @@ class _CertIssuePageState extends State<CertIssuePage> {
       ),
     );
     setState(() {
-      _signController.text = CertUtils.generateCertificate(
+      _certController.text = CertUtils.generateCertificate(
         data,
         _keyController.text,
       );

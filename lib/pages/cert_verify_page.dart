@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../utils/cert.dart';
+import '../widgets/file_input_field.dart';
+
 class CertVerifyPage extends StatefulWidget {
   const CertVerifyPage({super.key});
 
@@ -8,9 +11,11 @@ class CertVerifyPage extends StatefulWidget {
 }
 
 class _CertVerifyPageState extends State<CertVerifyPage> {
+  final TextEditingController _keyController = TextEditingController();
+  final TextEditingController _publicKeyController = TextEditingController();
   final TextEditingController _certController = TextEditingController();
-  String _certData = '';
   bool _isValid = false;
+  final TextEditingController _certDataController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -20,24 +25,20 @@ class _CertVerifyPageState extends State<CertVerifyPage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _certController,
-                    decoration: const InputDecoration(labelText: '证书内容'),
-                    maxLines: 5,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.upload_file),
-                  onPressed: _pickCertFile,
-                ),
-              ],
+            FileInputField(controller: _keyController, labelText: '私钥'),
+            ElevatedButton(
+              onPressed: _parsePublicKey,
+              child: const Text('从私钥读取公钥'),
             ),
+            FileInputField(controller: _publicKeyController, labelText: '公钥'),
+            FileInputField(controller: _certController, labelText: '证书内容'),
             ElevatedButton(onPressed: _verifyCert, child: const Text('验证证书')),
             const SizedBox(height: 20),
-            Text('证书数据：\n$_certData'),
+            FileInputField(
+              controller: _certDataController,
+              labelText: '证书数据',
+              readOnly: true,
+            ),
             const SizedBox(height: 10),
             Text(
               _isValid ? '验证通过 ✅' : '验证失败 ❌',
@@ -52,12 +53,35 @@ class _CertVerifyPageState extends State<CertVerifyPage> {
     );
   }
 
-  void _pickCertFile() {}
-  void _verifyCert() {
-    // 调用验证方法
+  Future<void> _parsePublicKey() async {
+    final keyContent = _keyController.text;
+    if (keyContent.isEmpty) {
+      return;
+    }
+
+    final publicKey = CertUtils.extractPublicKey(keyContent);
     setState(() {
-      _certData = '解析后的数据\n签名结果：XXXXX';
-      _isValid = true;
+      _publicKeyController.text = publicKey;
+    });
+  }
+
+  Future<void> _verifyCert() async {
+    final certContent = _certController.text;
+    if (certContent.isEmpty) {
+      setState(() {
+        _isValid = false;
+      });
+      return;
+    }
+
+    final result = CertUtils.verifyCertificate(
+      certContent,
+      _publicKeyController.text,
+    );
+
+    setState(() {
+      _certDataController.text = result.data;
+      _isValid = result.isValid;
     });
   }
 }

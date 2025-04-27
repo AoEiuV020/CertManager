@@ -17,13 +17,7 @@ class _KeyGenPageState extends State<KeyGenPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('生成RSA密钥'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      appBar: AppBar(title: const Text('生成RSA密钥')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
