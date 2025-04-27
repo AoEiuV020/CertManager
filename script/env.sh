@@ -3,6 +3,7 @@ set -e
 script_dir=$(cd $(dirname $0);pwd)
 ROOT=$(dirname "$script_dir")
 project_name=$(basename "$ROOT")
+project_name=$(echo "$project_name" | tr 'A-Z' 'a-z')
 app_name=$(echo "$project_name" | tr -d '_')
 apps_dir="$ROOT"/apps
 packages_dir="$ROOT"/packages
