@@ -122,7 +122,7 @@ class _RsaTestPageState extends State<RsaTestPage> {
               ],
             ),
             FileInputField(
-              labelText: '密文(Base64)',
+              labelText: '密文(Base64,RSA/ECB/PKCS1Padding)',
               controller: _cipherTextController,
             ),
             const Divider(),

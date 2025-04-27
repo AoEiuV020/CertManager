@@ -7,10 +7,8 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('证书管理系统')),
-      body: GridView.count(
+      body: ListView(
         padding: const EdgeInsets.all(20),
-        crossAxisCount: 2,
-        childAspectRatio: 1.5,
         children: [
           _buildFeatureCard(context, 'RSA测试', Icons.security, '/rsa_test'),
           _buildFeatureCard(context, '生成密钥', Icons.vpn_key, '/key_gen'),
@@ -27,18 +25,12 @@ class HomePage extends StatelessWidget {
     IconData icon,
     String route,
   ) {
-    return Card(
-      child: InkWell(
-        onTap: () => Navigator.pushNamed(context, route),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40),
-            const SizedBox(height: 10),
-            Text(title),
-          ],
-        ),
-      ),
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title, style: Theme.of(context).textTheme.titleMedium),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => Navigator.pushNamed(context, route),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     );
   }
 }

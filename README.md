@@ -1,16 +1,17 @@
-# certmanager
+# CertManager
 
-A new Flutter project.
+Flutter应用，用于管理数字证书的生成、签发和验证。
 
-## Getting Started
+## 功能特点
 
-This project is a starting point for a Flutter application.
+- 生成RSA密钥对
+- 签发数字证书，简单包含数据和签名
+- 验证证书链有效性
+- 支持base64编码过的DER格式导入导出
 
-A few resources to get you started if this is your first Flutter project:
+## 使用说明
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+1. 在首页选择功能
+2. 按照界面指引操作
+3. 生成或导入密钥/证书文件
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.

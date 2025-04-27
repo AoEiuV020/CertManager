@@ -44,9 +44,9 @@ class _CertIssuePageState extends State<CertIssuePage> {
       appBar: AppBar(title: Text('颁发证书')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: ListView(
           children: [
-            FileInputField(labelText: '私钥文件', controller: _keyController),
+            FileInputField(labelText: '私钥（Base64）', controller: _keyController),
             SizedBox(height: 8),
             ElevatedButton(onPressed: _generateSignature, child: Text('生成证书')),
             SizedBox(height: 8),
@@ -58,24 +58,22 @@ class _CertIssuePageState extends State<CertIssuePage> {
             SizedBox(height: 8),
             Divider(),
             SizedBox(height: 8),
-            Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: _fieldConfigs.length,
-                itemBuilder: (context, index) {
-                  final config = _fieldConfigs[index];
-                  return Column(
-                    children: [
-                      FileInputField(
-                        labelText: config.label,
-                        controller: config.controller,
-                      ),
-                      SizedBox(height: 8),
-                    ],
-                  );
-                },
-              ),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: _fieldConfigs.length,
+              itemBuilder: (context, index) {
+                final config = _fieldConfigs[index];
+                return Column(
+                  children: [
+                    FileInputField(
+                      labelText: config.label,
+                      controller: config.controller,
+                    ),
+                    SizedBox(height: 8),
+                  ],
+                );
+              },
             ),
           ],
         ),
