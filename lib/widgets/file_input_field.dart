@@ -17,9 +17,12 @@ class FileInputField extends StatelessWidget {
 
   Future<void> _pickFile(BuildContext context) async {
     final result = await FilePicker.platform.pickFiles();
-    if (result != null && result.files.single.path != null) {
-      controller.text = result.files.single.path!;
-    }
+    if (result == null) return;
+    final files = result.xFiles;
+    if (files.isEmpty) return;
+    final file = files.first;
+    final content = await file.readAsString();
+    controller.text = content;
   }
 
   Future<void> _copyToClipboard(BuildContext context) async {
