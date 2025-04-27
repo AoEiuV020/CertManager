@@ -13,12 +13,15 @@ class CertUtils {
     );
   }
 
-  static String generateSignature(Map<String, String> data, String privateKey) {
+  static String generateCertificate(
+    Map<String, String> data,
+    String privateKey,
+  ) {
     final value = Parameter.concatValues(data);
     final signed = RSA.sign(
       Uint8List.fromList(value.codeUnits),
       base64Decode(privateKey),
     );
-    return base64Encode(signed);
+    return '${base64Encode(value.codeUnits)}.${base64Encode(signed)}';
   }
 }

@@ -99,7 +99,7 @@ class _CertIssuePageState extends State<CertIssuePage> {
       ),
     );
     setState(() {
-      _signController.text = CertUtils.generateSignature(
+      _signController.text = CertUtils.generateCertificate(
         data,
         _keyController.text,
       );
