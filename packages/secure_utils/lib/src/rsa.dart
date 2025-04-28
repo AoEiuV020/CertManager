@@ -5,7 +5,11 @@ import 'package:basic_utils/basic_utils.dart';
 import 'package:pointycastle/export.dart';
 
 /// 私钥是pkcs1, 公钥是pkcs8,
+/// 加密是RSA/ECB/PKCS1Padding，
+/// 签名是Sha1withRSA,
 class RSA {
+  static const _signAlgorithm = 'SHA-256/RSA';
+
   RSA._();
 
   /// The default value for the [keySize] is 2048 bits.
@@ -62,9 +66,13 @@ class RSA {
     return base64Encode(signature);
   }
 
-  static Uint8List sign(Uint8List data, Uint8List privateKey) {
+  static Uint8List sign(
+    Uint8List data,
+    Uint8List privateKey, {
+    String algorithm = _signAlgorithm,
+  }) {
     final rsaPrivateKey = _getRsaPrivateKey(privateKey);
-    return CryptoUtils.rsaSign(rsaPrivateKey, data);
+    return CryptoUtils.rsaSign(rsaPrivateKey, data, algorithmName: algorithm);
   }
 
   static bool verifyFromBase64(
@@ -75,9 +83,19 @@ class RSA {
     return verify(utf8.encode(data), publicKey, base64Decode(signature));
   }
 
-  static bool verify(Uint8List data, Uint8List publicKey, Uint8List signature) {
+  static bool verify(
+    Uint8List data,
+    Uint8List publicKey,
+    Uint8List signature, {
+    String algorithm = _signAlgorithm,
+  }) {
     final rsaPublicKey = _getRsaPublicKey(publicKey);
-    return CryptoUtils.rsaVerify(rsaPublicKey, data, signature);
+    return CryptoUtils.rsaVerify(
+      rsaPublicKey,
+      data,
+      signature,
+      algorithm: algorithm,
+    );
   }
 
   // 私有辅助方法

@@ -76,7 +76,7 @@ void main() {
     });
 
     test('precomputed decryption should match', () {
-      final decrypted = RSA.decrypt(encryptedRaw, keyPair.privateKey);
+      final decrypted = RSA.decrypt(encryptedRaw, keyPairPkcs1.privateKey);
       expect(decrypted, equals(contentRaw));
     });
 
@@ -87,6 +87,27 @@ void main() {
     });
     test('precomputed signature should verify', () {
       expect(RSA.verify(contentRaw, keyPair.publicKey, signRaw), isTrue);
+    });
+
+    test('precomputed signature should match sha1', () {
+      final signed = RSA.sign(
+        contentRaw,
+        keyPairPkcs1.privateKey,
+        algorithm: 'SHA-1/RSA',
+      );
+      print(base64Encode(signed));
+      expect(signed, equals(signRawSha1));
+    });
+    test('precomputed signature should verify sha1', () {
+      expect(
+        RSA.verify(
+          contentRaw,
+          keyPairPkcs1.publicKey,
+          signRawSha1,
+          algorithm: 'SHA-1/RSA',
+        ),
+        isTrue,
+      );
     });
 
     test('extractPublicKey should work', () {
@@ -137,8 +158,12 @@ const content = "hello";
 
 final contentRaw = base64Decode("kolOt/LYqkhf/RZu6aJcIA==");
 final encryptedRaw = base64Decode(
-  "KzWu1hlpDMT6/hXk9XHF7UPwbc/yjXXwXkfqb3HuhZL3QRg8oWu+b5eQ2GoHQj6zMTbxpjP63UoKlapm1bmHgtSUtxzv+nQUqGtGe3ifhH+9svkZ8PxhwMxqQCpD3rN9X45z4Yv58NUcnUYHTmd/sdToB9v+Z/CnpT9uhNazi9Q=",
+  "a6CIZzAPpzaDysCOE9X5FYp723lsTRia/GVDmU4yyhcKaFX2iBICfVwK5gakKK+NgTQ4veMu0l3wpIHM+eRA+Q6zrxCYjE8tkH1O4Jbxcvx4Nai4QP0JqCXDXNpxJMccKhqyNZ01uBq1RjJ++ATkMt66rt5DMW4pLtToh7nLjhg=",
 );
 final signRaw = base64Decode(
   "VnEka0wYeYmaG45qW7+RTPH+prTO9ryxrtqyAwpoZOymeQGJTPfkmm+Ti16UJPZetYR1LF+ETQ++XAkuTQIqhu4sgXyuhw4/TIYyMDzaEuEDOciwvJLiyC73E0Q4jXQx6kT8o+65Ki9h4LPxjjr8tOc+/r3U1uhute8/QWWYiuA=",
+);
+
+final signRawSha1 = base64Decode(
+  "RvxmCkUxhtSPLss712C2vH7jpXaV82QXDe/e9EaclgWuVPEliDPmUkwg20PfG5d/xM0l3LAEexHAUWD3svg6HTWo9zw7/l+fYxtkbv59i8Uz7r5Y+j3HVaHKevFEw2Z34PHbiPXVNYBRE/4Qzl8wLT2ZSLzo50yBBFziD4LgvtU=",
 );
