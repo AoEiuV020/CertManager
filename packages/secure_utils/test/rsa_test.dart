@@ -17,6 +17,13 @@ void main() {
       expect(base64Decode(pair.getPublicKeyBase64()), equals(pair.publicKey));
     });
 
+    test('pkcs1 to 8', () {
+      final pkcs8 = keyPair.privateKey;
+      final pkcs1 = RSA.convertPkcs8ToPkcs1(pkcs8);
+      final newPkcs8 = RSA.convertPkcs1ToPkcs8(pkcs1);
+      expect(newPkcs8, equals(pkcs8));
+    });
+
     test('publicEncrypt/decrypt should work', () {
       final encrypted = RSA.encryptBase64(
         utf8.encode(content),

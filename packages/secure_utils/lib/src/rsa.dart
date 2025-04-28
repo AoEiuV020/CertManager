@@ -26,7 +26,7 @@ class RSA {
             as AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey>;
     return RsaKeyPair(
       CryptoUtils.encodeRSAPublicKeyToDERBytes(pair.publicKey),
-      _convertPkcs8ToPkcs1(
+      convertPkcs8ToPkcs1(
         CryptoUtils.encodeRSAPrivateKeyToDERBytes(pair.privateKey),
       ),
     );
@@ -123,17 +123,17 @@ class RSA {
     return cipher.process(data);
   }
 
-  static Uint8List _convertPkcs8ToPkcs1(Uint8List pkcs8Bytes) {
+  static Uint8List convertPkcs8ToPkcs1(Uint8List pkcs8Bytes) {
     return Uint8List.sublistView(pkcs8Bytes, 26, pkcs8Bytes.length);
   }
 
-  // ignore: unused_element
-  static Uint8List _convertPkcs1ToPkcs8(Uint8List pkcs1Bytes) {
+  static Uint8List convertPkcs1ToPkcs8(Uint8List pkcs1Bytes) {
     int pkcs1Length = pkcs1Bytes.length;
     int totalLength = pkcs1Length + 22;
 
     Uint8List pkcs8Header = Uint8List.fromList([
       0x30,
+      0x82,
       (totalLength >> 8) & 0xff,
       totalLength & 0xff, // Sequence + total length
       0x02, 0x01, 0x00, // Integer (0)
@@ -153,6 +153,7 @@ class RSA {
       0x05,
       0x00, // Sequence: 1.2.840.113549.1.1.1, NULL
       0x04,
+      0x82,
       (pkcs1Length >> 8) & 0xff,
       pkcs1Length & 0xff, // Octet string + length
     ]);
