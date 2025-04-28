@@ -97,22 +97,13 @@ void main() {
     });
 
     test('precomputed signature should match sha1', () {
-      final signed = RSA.sign(
-        contentRaw,
-        keyPairPkcs1.privateKey,
-        algorithm: 'SHA-1/RSA',
-      );
+      final signed = RSA.signSha1(contentRaw, keyPairPkcs1.privateKey);
       print(base64Encode(signed));
       expect(signed, equals(signRawSha1));
     });
     test('precomputed signature should verify sha1', () {
       expect(
-        RSA.verify(
-          contentRaw,
-          keyPairPkcs1.publicKey,
-          signRawSha1,
-          algorithm: 'SHA-1/RSA',
-        ),
+        RSA.verifySha1(contentRaw, keyPairPkcs1.publicKey, signRawSha1),
         isTrue,
       );
     });

@@ -8,7 +8,8 @@ import 'package:pointycastle/export.dart';
 /// 加密是RSA/ECB/PKCS1Padding，
 /// 签名是Sha1withRSA,
 class RSA {
-  static const _signAlgorithm = 'SHA-256/RSA';
+  static const _signAlgorithmHash = 'SHA-256/RSA';
+  static const _signAlgorithmHashSha1 = 'SHA-1/RSA';
 
   RSA._();
 
@@ -66,13 +67,22 @@ class RSA {
     return base64Encode(signature);
   }
 
-  static Uint8List sign(
-    Uint8List data,
-    Uint8List privateKey, {
-    String algorithm = _signAlgorithm,
-  }) {
+  static Uint8List sign(Uint8List data, Uint8List privateKey) {
     final rsaPrivateKey = _getRsaPrivateKey(privateKey);
-    return CryptoUtils.rsaSign(rsaPrivateKey, data, algorithmName: algorithm);
+    return CryptoUtils.rsaSign(
+      rsaPrivateKey,
+      data,
+      algorithmName: _signAlgorithmHash,
+    );
+  }
+
+  static Uint8List signSha1(Uint8List data, Uint8List privateKey) {
+    final rsaPrivateKey = _getRsaPrivateKey(privateKey);
+    return CryptoUtils.rsaSign(
+      rsaPrivateKey,
+      data,
+      algorithmName: _signAlgorithmHashSha1,
+    );
   }
 
   static bool verifyFromBase64(
@@ -83,18 +93,27 @@ class RSA {
     return verify(utf8.encode(data), publicKey, base64Decode(signature));
   }
 
-  static bool verify(
-    Uint8List data,
-    Uint8List publicKey,
-    Uint8List signature, {
-    String algorithm = _signAlgorithm,
-  }) {
+  static bool verify(Uint8List data, Uint8List publicKey, Uint8List signature) {
     final rsaPublicKey = _getRsaPublicKey(publicKey);
     return CryptoUtils.rsaVerify(
       rsaPublicKey,
       data,
       signature,
-      algorithm: algorithm,
+      algorithm: _signAlgorithmHash,
+    );
+  }
+
+  static bool verifySha1(
+    Uint8List data,
+    Uint8List publicKey,
+    Uint8List signature,
+  ) {
+    final rsaPublicKey = _getRsaPublicKey(publicKey);
+    return CryptoUtils.rsaVerify(
+      rsaPublicKey,
+      data,
+      signature,
+      algorithm: _signAlgorithmHashSha1,
     );
   }
 
