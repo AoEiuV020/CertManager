@@ -49,7 +49,7 @@ class _CertIssuePageState extends State<CertIssuePage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            FileInputField(labelText: '私钥（Base64）', controller: _keyController),
+            FileInputField(labelText: '私钥', controller: _keyController),
             SizedBox(height: 8),
             ElevatedButton(onPressed: _generateSignature, child: Text('生成证书')),
             SizedBox(height: 8),
