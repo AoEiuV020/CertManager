@@ -33,6 +33,7 @@ class CertUtils {
     String certificate,
     String publicKey,
   ) {
+    var str = '';
     try {
       final parts = certificate.split('.');
       if (parts.length != 2) return (data: '', isValid: false);
@@ -42,7 +43,7 @@ class CertUtils {
 
       final isValid = RSA.verify(data, base64Decode(publicKey), signature);
 
-      final str = String.fromCharCodes(data);
+      str = String.fromCharCodes(data);
       if (isValid) {
         // 验证时间有效性
         final map = jsonDecode(str);
@@ -53,16 +54,16 @@ class CertUtils {
           );
           final validTo = DateTime.fromMillisecondsSinceEpoch(map['validTo']);
           if (now.isBefore(validFrom) || now.isAfter(validTo)) {
-            return (data: '', isValid: false);
+            return (data: str, isValid: false);
           }
         } else {
-          return (data: '', isValid: false);
+          return (data: str, isValid: false);
         }
       }
 
       return (data: str, isValid: isValid);
     } catch (e) {
-      return (data: '', isValid: false);
+      return (data: str, isValid: false);
     }
   }
 }
