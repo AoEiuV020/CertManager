@@ -31,8 +31,9 @@ class CertUtils {
 
   static ({String data, bool isValid}) verifyCertificate(
     String certificate,
-    String publicKey,
-  ) {
+    String publicKey, {
+    Map<String, dynamic>? checkValues,
+  }) {
     var str = '';
     try {
       final parts = certificate.split('.');
@@ -40,7 +41,7 @@ class CertUtils {
 
       final data = base64Decode(parts[0]);
       str = String.fromCharCodes(data);
-      final signature = base64Decode(parts[1]);
+      final signature = base64Decode(parts[1].trim());
 
       final isValid = RSA.verify(data, base64Decode(publicKey), signature);
 
@@ -58,6 +59,15 @@ class CertUtils {
           }
         } else {
           return (data: str, isValid: false);
+        }
+
+        // 校验额外参数值
+        if (checkValues != null) {
+          for (final entry in checkValues.entries) {
+            if (map[entry.key] != entry.value) {
+              return (data: str, isValid: false);
+            }
+          }
         }
       }
 
