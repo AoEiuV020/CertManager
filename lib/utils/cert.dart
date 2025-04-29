@@ -39,11 +39,11 @@ class CertUtils {
       if (parts.length != 2) return (data: '', isValid: false);
 
       final data = base64Decode(parts[0]);
+      str = String.fromCharCodes(data);
       final signature = base64Decode(parts[1]);
 
       final isValid = RSA.verify(data, base64Decode(publicKey), signature);
 
-      str = String.fromCharCodes(data);
       if (isValid) {
         // 验证时间有效性
         final map = jsonDecode(str);
