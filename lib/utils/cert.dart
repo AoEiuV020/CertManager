@@ -16,17 +16,16 @@ class CertUtils {
   static String extractPublicKey(String privateKey) {
     return base64Encode(RSA.extractPublicKey(base64Decode(privateKey)));
   }
-
   static String generateCertificate(
     Map<String, dynamic> data,
     String privateKey,
   ) {
     final value = jsonEncode(data);
     final signed = RSA.sign(
-      Uint8List.fromList(value.codeUnits),
+      Uint8List.fromList(utf8.encode(value)),
       base64Decode(privateKey),
     );
-    return '${base64Encode(value.codeUnits)}.${base64Encode(signed)}';
+    return '${base64Encode(utf8.encode(value))}.${base64Encode(signed)}';
   }
 
   static ({String data, bool isValid}) verifyCertificate(
@@ -37,10 +36,8 @@ class CertUtils {
     var str = '';
     try {
       final parts = certificate.split('.');
-      if (parts.length != 2) return (data: '', isValid: false);
-
-      final data = base64Decode(parts[0]);
-      str = String.fromCharCodes(data);
+      if (parts.length != 2) return (data: '', isValid: false);      final data = base64Decode(parts[0]);
+      str = utf8.decode(data);
       final signature = base64Decode(parts[1].trim());
 
       final isValid = RSA.verify(data, base64Decode(publicKey), signature);
